@@ -24,16 +24,43 @@ function readNewFile() {
 		parseData(data);	
 	}
   }
-  
+	function isNumeric(val) {
+		return val != '' && !isNaN(val);
+	}
   function parseData(data) {
+	var allTimeSeries = buildLabels(data);
+	alert(allTimeSeries[0].name);
+	for(var row = 1; row < data.length; row++) {
+		for(var item = 1; item < data[row].length; item++) {
+			var value = data[row][item];
+			var time = data[row][0];
+			if(isNumeric(value) && isNumeric(time.charAt(0))) {
+				var point = new Point(0, 0, data[row][0], data[row][item]);
+				allTimeSeries[item-1].push(point);
+			}
+		}
+	}
+
+  
 	var html = '';
-	for(var row in data) {
-		for(var item in data[row]) {
-			html += data[row][item] + "<br />";
+	for(var series in allTimeSeries) {
+		for(var i = 0; i < allTimeSeries[series].getNumPoints(); i++) {
+			html += i + ": " + allTimeSeries[series].name + ": "  + allTimeSeries[series].get(i).time + ", " + allTimeSeries[series].get(i).value + "<br />";
 		}
 	}
 	$('p').html(html);
   }
+
+// Return a list of labels based on the CSV
+function buildLabels(data) { 
+	var allTimeSeries = [];
+	var labels = data[0];
+	// Add each time series (excluding the first in the CSV, which is the 'Date')
+	for(var i = 1; i < labels.length; i++) {
+		allTimeSeries[i-1] = new TimeSeries(labels[i]);
+	}
+	return allTimeSeries;
+}
 
 
 
