@@ -53,6 +53,7 @@ $(document).ready(function() {
 		
 		// Build labels
 		var labels = buildLabels(allTimeSeries[0], allTimeSeries[0].oldest, allTimeSeries[0].newest);
+		
 	  
 		var html = '';
 		html += "Oldest: " + allTimeSeries[0].oldest + "<br />";
@@ -65,6 +66,7 @@ $(document).ready(function() {
 		
 		$('p').html(html);
 		
+
 		drawer = new DrawRegion(allTimeSeries, labels, c_width, c_height);	
 	  }
 

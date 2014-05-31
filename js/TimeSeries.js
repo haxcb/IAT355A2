@@ -2,6 +2,7 @@ function TimeSeries(name) {
 	this.name = name;
 	this.oldest = 0;
 	this.newest = 0;
+	this.selected = false;
 	var points = [];
 	
 	this.push = function(item) {

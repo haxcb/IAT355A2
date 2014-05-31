@@ -1,9 +1,10 @@
 function DrawRegion(allSeries,labels, width, height) {
 	var context;
-	var originX = width / 20 - 0.5;
-	var originY = width / 20 - 0.5;
+	var originX = parseInt(width / 15);
+	var originY = parseInt(width / 15);
 	var graphW = width - originX * 2;
 	var graphH = height - originY * 2;
+	
 	function setupCanvas() { 
 		context = document.getElementById("canvas").getContext("2d");
 		context.canvas.width = width;
@@ -16,9 +17,9 @@ function DrawRegion(allSeries,labels, width, height) {
 	}
 	
 	function drawAxis() {
-		// context.fillStyle = "#fff";
-		// context.fillRect(originX, originY, graphW, graphH);
+		// Y-axis
 		drawLine(originX, originY, originX, originY + graphH, "#aaa");
+		// X-axis
 		drawLine(originX, originY + graphH, originX + graphW, originY + graphH, "#aaa");
 	}
 	
@@ -40,11 +41,28 @@ function DrawRegion(allSeries,labels, width, height) {
 					click: function() {
 						var num = parseInt(this.id.charAt(this.id.length-1));
 						$(this).toggleClass("color" + num);
+						allSeries[num].selected = !allSeries[num].selected;
+						setupCanvas();
+						drawAllSeries();
 					}
 				});
 				$("#buttons").append(button);
 			}
 		}
 	}
+	
+	function drawAllSeries() {
+		for(var i in allSeries) {
+			if(allSeries[i].selected) {
+				if($("#button" + i).hasClass("color" + i)) {
+					var color = $("#button" + i).css("background-color");
+					context.fillStyle = color;
+					context.fillRect(originX, originY, graphW, graphH);	
+				}
+			}
+		}
+			
+	}
+	
 	draw();
 }
