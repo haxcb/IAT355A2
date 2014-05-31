@@ -1,1 +1,65 @@
 /* CSS */
+
+canvas {
+	display:block;
+	border:1px solid #aaaaaa;
+	background-color:#eee;
+}
+
+input {
+	display:block;
+	margin:0 auto;
+}
+
+section {
+	border:1px solid #aaaaaa;
+	background-color:#eee;
+	width:980px;
+	margin-top:10px;
+	padding:10px;
+}
+
+button {
+	background-color:#ccc;
+	border:0;
+	padding: 10px 20px;
+	border-radius:5px;
+	color:#333;
+}
+
+.color0 {
+	background-color:#E7492F; /* Red */
+}
+.color1 {
+	background-color:#7CA94F; /* Green */
+}
+.color2 {
+	background-color:#6B7CC9;  /* Blue */
+}
+.color3 {
+	background-color:#D3C751;  /* Yellow */
+}
+.color4 {
+	background-color:#E9889E;  /* Pink */
+}
+.color5 {
+	background-color:#93C2C5;  /* Cyan */
+}
+.color6 {
+	background-color:#E09A5B;  /* Orange */
+}
+.color7 {
+	background-color:#A76BC9;  /* Purple */
+}
+.color8 {
+	background-color:#B9FF78;  /* Light Green */
+}
+.color9 {
+	background-color:#BA946C;  /* Brown */
+}
+.color10 {
+	background-color:#fff;  /* White */
+}
+.color11 {
+	background-color:#8F8F8F;  /* Grey */
+}

@@ -1,9 +1,16 @@
 function TimeSeries(name) {
 	this.name = name;
+	this.oldest = 0;
+	this.newest = 0;
 	var points = [];
 	
 	this.push = function(item) {
 		points.push(item);
+		this.newest = item.time;
+		
+		if(this.oldest == 0) {
+			this.oldest = item.time;
+		}
 	};
 	
 	this.get = function(i) {
@@ -13,6 +20,8 @@ function TimeSeries(name) {
 	this.getNumPoints = function() {
 		return points.length;
 	}
+	
+	
 	
 	
 }
