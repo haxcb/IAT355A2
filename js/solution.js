@@ -52,7 +52,7 @@ $(document).ready(function() {
 		}
 		
 		// Build labels
-		var labels = buildLabels(allTimeSeries[0], allTimeSeries[0].oldest, allTimeSeries[0].newest);
+		var allDates = buildAllDates(allTimeSeries[0], allTimeSeries[0].oldest, allTimeSeries[0].newest);
 		
 	  
 		var html = '';
@@ -67,7 +67,7 @@ $(document).ready(function() {
 		$('p').html(html);
 		
 
-		drawer = new DrawRegion(allTimeSeries, labels, c_width, c_height);	
+		drawer = new DrawRegion(allTimeSeries, allDates, c_width, c_height);	
 	  }
 
 	// Return a list of labels based on the CSV
@@ -81,7 +81,7 @@ $(document).ready(function() {
 		return allTimeSeries;
 	}
 	
-	function buildLabels(series, oldest, newest) {
+	function buildAllDates(series, oldest, newest) {
 		var dates = [];
 		var date = getDateFromString(oldest); // Start with the oldest
 		var newestDate = getDateFromString(newest); // End with newest

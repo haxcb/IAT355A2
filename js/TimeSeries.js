@@ -2,6 +2,7 @@ function TimeSeries(name) {
 	this.name = name;
 	this.oldest = 0;
 	this.newest = 0;
+	this.maxValue = 0;
 	this.selected = false;
 	var points = [];
 	
@@ -11,6 +12,9 @@ function TimeSeries(name) {
 		
 		if(this.oldest == 0) {
 			this.oldest = item.time;
+		}
+		if(item.value > this.maxValue) {
+			this.maxValue = item.value;
 		}
 	};
 	
