@@ -13,7 +13,8 @@ function TimeSeries(name) {
 		if(this.oldest == 0) {
 			this.oldest = item.time;
 		}
-		if(item.value > this.maxValue) {
+
+		if(parseFloat(item.value) > parseFloat(this.maxValue)) {
 			this.maxValue = item.value;
 		}
 	};
