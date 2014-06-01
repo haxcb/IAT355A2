@@ -1,6 +1,8 @@
 function DrawRegion(allSeries,dates, width, height) {
 	var context;
 	var numSelected;
+	var Y_LABEL = "RATE";
+	var X_LABEL = "DATE";
 	var originX = parseInt(width / 12);
 	var originY = parseInt(width / 12);
 	var graphW = width - originX * 2;
@@ -23,16 +25,10 @@ function DrawRegion(allSeries,dates, width, height) {
 		// Y-axis
 		context.beginPath();
 		drawLine(originX, originY, originX, originY + graphH, "#aaa");
+		
 		// X-axis
 		context.beginPath();
 		drawLine(originX, originY + graphH, originX + graphW, originY + graphH, "#aaa");
-		
-		context.save();
-		context.rotate(Math.PI/2);
-		context.font = "12px sans-serif";
-		context.textAlign = "center";
-		// context.fillText(yLabel, 
-		context.restore();
 	}
 	
 	function drawLine(x, y, x2, y2, color) {
@@ -135,6 +131,9 @@ function DrawRegion(allSeries,dates, width, height) {
 				context.fillText(dates[dateIndex].toUTCString().split(' ')[2] + " '" + dates[dateIndex].getFullYear().toString().charAt(2) + dates[dateIndex].getFullYear().toString().charAt(3), xPos, yPos + 25);
 			}
 		}
+		if(dates) {
+			drawText(X_LABEL, originX + graphW/2 + 20, originY + graphH + 60, 0);
+		}
 		
 		var NUM_Y_TICKS = 7;
 		var hUnit = graphH / NUM_Y_TICKS;
@@ -146,8 +145,7 @@ function DrawRegion(allSeries,dates, width, height) {
 			var yPos = originY + i * hUnit - hUnit;
 			drawLine(xPos - 10, yPos, xPos + graphW, yPos, "#aaa");
 			
-			if(allSeries && numSelected > 0) {
-				
+			if(allSeries && numSelected > 0) {				
 				var valueIndex = (maxY / NUM_Y_TICKS) * (NUM_Y_TICKS - i + 1);
 				context.font = "12px sans-serif";
 				context.textAlign = "right";
@@ -155,9 +153,23 @@ function DrawRegion(allSeries,dates, width, height) {
 				// alert("drawn");
 			}
 		}	
+		
+		if(numSelected > 0) {
+			drawText(Y_LABEL, -(originY + graphH/2) + 20, 20, -Math.PI/2);
+		}
 				
 		// Draw extra space at top
 		drawLine(originX, originY, originX, originY - hUnit, "#aaa");
+	}
+	
+	function drawText(text, x, y, rotation) {
+		context.save();
+		context.rotate(rotation);
+		context.font = "14px sans-serif";
+		context.textAlign = "center";
+		context.fillStyle = "#888";
+		context.fillText(text, x, y);
+		context.restore();	
 	}
 	
 	function getDateFromString(str) {

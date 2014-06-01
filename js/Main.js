@@ -1,5 +1,5 @@
 $(document).ready(function() { 
-
+	var TITLE_MARKER = ',,,,,,,';
 	var text;
 	var reader;
 	var drawer;
@@ -20,7 +20,7 @@ $(document).ready(function() {
 		input.addEventListener('change', handleFileSelect, false);
 	}
 
-	  function handleFileSelect(evt) {
+	function handleFileSelect(evt) {
 		var file = evt.target.files[0];
 		
 		reader.readAsBinaryString(file);
@@ -29,12 +29,12 @@ $(document).ready(function() {
 			var data = $.csv.toArrays(reader.result);
 			parseData(data);	
 		}
-	  }
-		function isNumeric(val) {
-			return val != '' && !isNaN(val);
-		}
-	  function parseData(data) {
+	}
+	
+	function parseData(data) {
 		var allTimeSeries = buildSeries(data);
+
+		$('h1').html(getGraphTitle(data));
 		
 		// alert(allTimeSeries[0].name);
 		
@@ -68,7 +68,13 @@ $(document).ready(function() {
 		
 
 		drawer = new DrawRegion(allTimeSeries, allDates, c_width, c_height);	
-	  }
+	}
+	
+	function getGraphTitle(data) {
+		var title = '' + data[data.length-1];		
+		var markerLocation = title.indexOf(TITLE_MARKER);
+		return title.substr(0, markerLocation);
+	}
 
 	// Return a list of labels based on the CSV
 	function buildSeries(data) { 
@@ -103,6 +109,10 @@ $(document).ready(function() {
 	
 	function getDate(date) {
 		return date.getFullYear() + " " + (parseInt(date.getMonth()) + 1) + " " + date.getDate();
+	}
+	
+	function isNumeric(val) {
+		return val != '' && !isNaN(val);
 	}
 
 });
