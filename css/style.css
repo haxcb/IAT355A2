@@ -1,5 +1,17 @@
 /* CSS */
 
+#container {
+	width:1000px;
+	margin:0 auto;
+}
+
+h1 {
+	text-align:center;
+	font-family:sans-serif;
+	font-weight:normal;
+	color:#aaa;
+}
+
 canvas {
 	display:block;
 	border:1px solid #aaaaaa;
@@ -19,12 +31,21 @@ section {
 	padding:10px;
 }
 
+#buttons {
+	width:980px;
+	margin:0 auto;
+	position:relative;
+	text-align:center;
+}
+
 button {
 	background-color:#ccc;
 	border:0;
 	padding: 10px 20px;
 	border-radius:5px;
 	color:#333;
+	display:inline-block;
+	margin:5px;
 }
 
 .color0 {

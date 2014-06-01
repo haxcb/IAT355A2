@@ -1,8 +1,8 @@
 function DrawRegion(allSeries,dates, width, height) {
 	var context;
 	var numSelected;
-	var originX = parseInt(width / 15);
-	var originY = parseInt(width / 15);
+	var originX = parseInt(width / 12);
+	var originY = parseInt(width / 12);
 	var graphW = width - originX * 2;
 	var graphH = height - originY * 2;
 	
@@ -26,6 +26,13 @@ function DrawRegion(allSeries,dates, width, height) {
 		// X-axis
 		context.beginPath();
 		drawLine(originX, originY + graphH, originX + graphW, originY + graphH, "#aaa");
+		
+		context.save();
+		context.rotate(Math.PI/2);
+		context.font = "12px sans-serif";
+		context.textAlign = "center";
+		// context.fillText(yLabel, 
+		context.restore();
 	}
 	
 	function drawLine(x, y, x2, y2, color) {

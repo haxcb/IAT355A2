@@ -55,16 +55,16 @@ $(document).ready(function() {
 		var allDates = buildAllDates(allTimeSeries[0], allTimeSeries[0].oldest, allTimeSeries[0].newest);
 		
 	  
-		var html = '';
-		html += "Oldest: " + allTimeSeries[0].oldest + "<br />";
-		html += 'Newest: ' + allTimeSeries[0].newest + "<br />";
-		for(var series in allTimeSeries) {
-			for(var i = 0; i < allTimeSeries[series].getNumPoints(); i++) {
-				html += i + ": " + allTimeSeries[series].name + ": "  + allTimeSeries[series].get(i).time + ", " + allTimeSeries[series].get(i).value + "<br />";
-			}
-		}
+		// var html = '';
+		// html += "Oldest: " + allTimeSeries[0].oldest + "<br />";
+		// html += 'Newest: ' + allTimeSeries[0].newest + "<br />";
+		// for(var series in allTimeSeries) {
+			// for(var i = 0; i < allTimeSeries[series].getNumPoints(); i++) {
+				// html += i + ": " + allTimeSeries[series].name + ": "  + allTimeSeries[series].get(i).time + ", " + allTimeSeries[series].get(i).value + "<br />";
+			// }
+		// }
 		
-		$('p').html(html);
+		// $('p').html(html);
 		
 
 		drawer = new DrawRegion(allTimeSeries, allDates, c_width, c_height);	
