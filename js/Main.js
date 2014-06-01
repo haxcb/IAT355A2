@@ -52,19 +52,37 @@ $(document).ready(function() {
 		}
 		
 		// Build labels
-		var allDates = buildAllDates(allTimeSeries[0], allTimeSeries[0].oldest, allTimeSeries[0].newest);
+		var allDates = buildAllDates(allTimeSeries[0].oldest, allTimeSeries[0].newest);
+		
+		var displayableSeries = [];
+		for(var i in allTimeSeries) {
+			displayableSeries[i] = new TimeSeries(allTimeSeries[i].name);			
+			var pointIndex = 0;
+			
+			for(var date in allDates) {
+				var val = -1;
+				if(allDates[date] - getDateFromString(allTimeSeries[i].get(pointIndex).time) == 0) {
+					val = allTimeSeries[i].get(pointIndex).value;
+					pointIndex++;
+				}
+				var point = new Point(0, 0, getDate(allDates[date]), val);
+				displayableSeries[i].push(point);
+			}
+		}
+		
+	
 		
 	  
-		// var html = '';
-		// html += "Oldest: " + allTimeSeries[0].oldest + "<br />";
-		// html += 'Newest: ' + allTimeSeries[0].newest + "<br />";
-		// for(var series in allTimeSeries) {
-			// for(var i = 0; i < allTimeSeries[series].getNumPoints(); i++) {
-				// html += i + ": " + allTimeSeries[series].name + ": "  + allTimeSeries[series].get(i).time + ", " + allTimeSeries[series].get(i).value + "<br />";
-			// }
-		// }
+		var html = '';
+		html += "Oldest: " + displayableSeries[0].oldest + "<br />";
+		html += 'Newest: ' + displayableSeries[0].newest + "<br />";
+		for(var series in displayableSeries) {
+			for(var i = 0; i < displayableSeries[series].getNumPoints(); i++) {
+				html += i + ": " + displayableSeries[series].name + ": "  + displayableSeries[series].get(i).time + ", " + displayableSeries[series].get(i).value + "<br />";
+			}
+		}
 		
-		// $('p').html(html);
+		$('p').html(html);
 		
 
 		drawer = new DrawRegion(allTimeSeries, allDates, c_width, c_height);	
@@ -87,7 +105,7 @@ $(document).ready(function() {
 		return allTimeSeries;
 	}
 	
-	function buildAllDates(series, oldest, newest) {
+	function buildAllDates(oldest, newest) {
 		var dates = [];
 		var date = getDateFromString(oldest); // Start with the oldest
 		var newestDate = getDateFromString(newest); // End with newest
@@ -108,7 +126,7 @@ $(document).ready(function() {
 	}
 	
 	function getDate(date) {
-		return date.getFullYear() + " " + (parseInt(date.getMonth()) + 1) + " " + date.getDate();
+		return date.getFullYear() + "-" + (parseInt(date.getMonth()) + 1) + "-" + date.getDate();
 	}
 	
 	function isNumeric(val) {

@@ -94,15 +94,19 @@ function DrawRegion(allSeries,dates, width, height) {
 					var currX = originX;
 					var point = 0;
 					
-					var prevY = originY + graphH - allSeries[i].get(point).value * unitY;
+					var prevY = -1;
 					
 					context.beginPath();
 	
 					for(var label = 0; label < dates.length; label++) {
 						var pointTime = allSeries[i].get(point).time;
+						
 						if(dates[label] - getDateFromString(pointTime) == 0) {
 							if(allSeries[i].get(point).visible) {
 								var currY = originY + graphH - allSeries[i].get(point).value * unitY;
+								if(prevY == -1) {
+									prevY = currY;
+								}
 								drawLine(currX, prevY, currX, currY, color);
 								prevY = currY;
 							}
@@ -147,12 +151,14 @@ function DrawRegion(allSeries,dates, width, height) {
 				$("#rangeXMax").slider('refresh');
 			});	
 			
+			var drawableSeries = allSeries.slice();
 			// Update graph min
 			var minTimer = null;
 			$("#rangeXMin").on('slidestop', function(event) {
-				if(minTimer == null) {
+				if(!minTimer) {
 					minTimer = window.setTimeout(function() {clearTimeout(minTimer);}, 1000);
 					alert("MIN " + $(event.target).val());
+					
 					for(var i in allSeries) {	
 						if(allSeries[i].selected) {
 							var point = 0;
