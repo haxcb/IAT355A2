@@ -53,40 +53,42 @@ $(document).ready(function() {
 		
 		// Build labels
 		var allDates = buildAllDates(allTimeSeries[0].oldest, allTimeSeries[0].newest);
+		$("#rangeXMax").val(allDates.length);
+		$("#rangeXMin").slider('refresh');
 		
-		var displayableSeries = [];
-		for(var i in allTimeSeries) {
-			displayableSeries[i] = new TimeSeries(allTimeSeries[i].name);			
-			var pointIndex = 0;
-			
-			for(var date in allDates) {
-				var val = -1;
-				if(allDates[date] - getDateFromString(allTimeSeries[i].get(pointIndex).time) == 0) {
-					val = allTimeSeries[i].get(pointIndex).value;
-					pointIndex++;
-				}
-				var point = new Point(0, 0, getDate(allDates[date]), val);
-				displayableSeries[i].push(point);
-			}
-		}
+		
+		// var displayableSeries = buildDisplayable(allTimeSeries, allDates);
 		
 	
 		
 	  
-		var html = '';
-		html += "Oldest: " + displayableSeries[0].oldest + "<br />";
-		html += 'Newest: ' + displayableSeries[0].newest + "<br />";
-		for(var series in displayableSeries) {
-			for(var i = 0; i < displayableSeries[series].getNumPoints(); i++) {
-				html += i + ": " + displayableSeries[series].name + ": "  + displayableSeries[series].get(i).time + ", " + displayableSeries[series].get(i).value + "<br />";
-			}
-		}
+		// var html = '';
+		// html += "Oldest: " + displayableSeries[0].oldest + "<br />";
+		// html += 'Newest: ' + displayableSeries[0].newest + "<br />";
+		// for(var series in displayableSeries) {
+			// for(var i = 0; i < displayableSeries[series].getNumPoints(); i++) {
+				// html += i + ": " + displayableSeries[series].name + ": "  + displayableSeries[series].get(i).time + ", " + displayableSeries[series].get(i).value + "<br />";
+			// }
+		// }
 		
-		$('p').html(html);
+		// $('p').html(html);
 		
 
+		// drawer = new DrawRegion(allTimeSeries, allDates, c_width, c_height);	
 		drawer = new DrawRegion(allTimeSeries, allDates, c_width, c_height);	
+		
+		// $("#rangeXMin").on('slidestop', function(event) {
+			// var displayableSeries = buildDisplayable(allTimeSeries, allDates);
+			// drawer.updateData(displayableSeries);
+		// });
+		
+		// $("#rangeXMax").on('slidestop', function(event) {
+			// var displayableSeries = buildDisplayable(allTimeSeries, allDates);
+			// drawer.updateData(displayableSeries);
+		// });
 	}
+	
+	
 	
 	function getGraphTitle(data) {
 		var title = '' + data[data.length-1];		

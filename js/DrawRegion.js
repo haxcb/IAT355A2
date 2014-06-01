@@ -1,4 +1,4 @@
-function DrawRegion(allSeries,dates, width, height) {
+function DrawRegion(allTimeSeries, allDates, width, height) {
 	var context;
 	var numSelected;
 	var Y_LABEL = "RATE";
@@ -7,24 +7,57 @@ function DrawRegion(allSeries,dates, width, height) {
 	var originY = parseInt(width / 12);
 	var graphW = width - originX * 2;
 	var graphH = height - originY * 2;
+	var allDisplaySeries;
+	var allSeries = allTimeSeries;
+	
+	function reset() {
+		numSelected = 0;
+		setupCanvas();
+	}
 	
 	function setupCanvas() { 
-		$("#rangeXMin").slider('disable');		
-		$("#rangeXMax").slider('disable');	
+		$("#rangeXMin").slider('enable');		
+		$("#rangeXMax").slider('enable');	
 		$("#rangeXMin").css('display', 'none');
 		$("#rangeXMax").css('display', 'none');			
-		numSelected = 0;
 		context = document.getElementById("canvas").getContext("2d");
 		context.canvas.width = width;
 		context.canvas.height = height;
+		allDisplaySeries = buildDisplayable();
 		drawAxis();
 	}
 	function draw() {
-		if(dates)
-			$("#rangeXMax").val(dates.length);
+		// if(allDisplaySeries && allDisplaySeries[0])
+			// $("#rangeXMax").val(allDisplaySeries[0].getNumPoints());
 		setupCanvas();
 		buildSeriesButtons();
 		drawTicks(0, 0, 0, 0);
+	}
+	
+	function buildDisplayable() {
+		var displayableSeries = [];
+		// console.log("BUILDING");
+		for(var i in allSeries) {
+			// console.log(allSeries[i].name);
+			displayableSeries[i] = new TimeSeries(allSeries[i].name);			
+			displayableSeries[i].selected = allSeries[i].selected;	
+			var pointIndex = 0;
+			
+			for(var date in allDates) {
+				var val = -1;
+				if(allDates[date] - getDateFromString(allSeries[i].get(pointIndex).time) == 0) {
+					// console.log($("#rangeXMax").val() + " > " + date + " > " + $("#rangeXMin").val());
+					if(parseInt($("#rangeXMax").val()) >= date && parseInt($("#rangeXMin").val()) <= date) {
+						val = allSeries[i].get(pointIndex).value;
+						
+					}
+					pointIndex++;
+				}
+				var point = new Point(0, 0, getDate(allDates[date]), val);
+				displayableSeries[i].push(point);
+			}
+		}
+		return displayableSeries;
 	}
 	
 	function drawAxis() {
@@ -45,18 +78,19 @@ function DrawRegion(allSeries,dates, width, height) {
 	}
 	
 	function buildSeriesButtons() {
-		if(allSeries) {
+		if(allDisplaySeries) {
 			$('#buttons').html('');
-			for(var i = 0; i < allSeries.length; i++) {
+			for(var i = 0; i < allDisplaySeries.length; i++) {
 				var button = $('<button/>', {
-					text: allSeries[i].name,
+					text: allDisplaySeries[i].name,
 					id: "button" + i,
 					click: function() {
 						var num = parseInt(this.id.charAt(this.id.length-1));
 						$(this).toggleClass("color" + num);
+						allDisplaySeries[num].selected = !allDisplaySeries[num].selected;
 						allSeries[num].selected = !allSeries[num].selected;
-						setupCanvas();
-						drawAllSeries();
+						reset() ;
+						drawallDisplaySeries();
 					}
 				});
 				$("#buttons").append(button);
@@ -66,21 +100,21 @@ function DrawRegion(allSeries,dates, width, height) {
 	
 	function getHighestYValue() {
 		var maxY = 0;
-		for(var i in allSeries) {
-			if(allSeries[i].selected) {
-				if(parseFloat(allSeries[i].maxValue) >= maxY) {
-					maxY = parseFloat(allSeries[i].maxValue);
+		for(var i in allDisplaySeries) {
+			if(allDisplaySeries[i].selected) {
+				if(parseFloat(allDisplaySeries[i].maxValue) >= maxY) {
+					maxY = parseFloat(allDisplaySeries[i].maxValue);
 				}
 			}
 		}
 		return maxY;
 	}
 	
-	function drawAllSeries() {
+	function drawallDisplaySeries() {
 		var maxY = getHighestYValue();
 		
-		for(var i in allSeries) {	
-			if(allSeries[i].selected) {
+		for(var i in allDisplaySeries) {	
+			if(allDisplaySeries[i].selected) {
 				if($("#button" + i).hasClass("color" + i)) {
 					var color = $("#button" + i).css("background-color");
 					
@@ -89,40 +123,87 @@ function DrawRegion(allSeries,dates, width, height) {
 					// context.fillStyle = color;
 					// context.fillRect(originX, originY, graphW, graphH);	
 					
-					var unitX = graphW / dates.length;
+					var unitX = graphW / allDisplaySeries[i].getNumPoints();
 					var unitY = graphH / maxY;
 					var currX = originX;
 					var point = 0;
 					
 					var prevY = -1;
+					var prevX = -1;
 					
 					context.beginPath();
-	
-					for(var label = 0; label < dates.length; label++) {
-						var pointTime = allSeries[i].get(point).time;
-						
-						if(dates[label] - getDateFromString(pointTime) == 0) {
-							if(allSeries[i].get(point).visible) {
-								var currY = originY + graphH - allSeries[i].get(point).value * unitY;
-								if(prevY == -1) {
-									prevY = currY;
-								}
-								drawLine(currX, prevY, currX, currY, color);
+					
+					for(var p = 0; p < allDisplaySeries[i].getNumPoints(); p++) {
+						if(parseFloat(allDisplaySeries[i].get(p).value) > -1) {
+							var currY = originY + graphH - allDisplaySeries[i].get(p).value * unitY;
+							// console.log(currX + " " +  prevY);
+							if(prevY == -1) {
 								prevY = currY;
+								prevX = currX;
 							}
-							point++;
+							drawLine(parseInt(prevX), parseInt(prevY), parseInt(currX), parseInt(currY), color);
+							prevY = currY;
+							prevX = currX;
 						}
-						// console.log("Point: " + pointTime + " Label: " + dates[label].getFullYear() + "-" + (parseInt(dates[label].getMonth()) + 1) + "-" + dates[label].getDate());
 						currX += unitX;
 					}
+	
+					// for(var label = 0; label < dates.length; label++) {
+						// var pointTime = allDisplaySeries[i].get(point).time;
+						
+						// if(dates[label] - getDateFromString(pointTime) == 0) {
+							// if(allDisplaySeries[i].get(point).visible) {
+								// var currY = originY + graphH - allDisplaySeries[i].get(point).value * unitY;
+								// if(prevY == -1) {
+									// prevY = currY;
+								// }
+								// drawLine(currX, prevY, currX, currY, color);
+								// prevY = currY;
+							// }
+							// point++;
+						// }
+						// console.log("Point: " + pointTime + " Label: " + dates[label].getFullYear() + "-" + (parseInt(dates[label].getMonth()) + 1) + "-" + dates[label].getDate());
+						// currX += unitX;
+					// }
 					
 				}
 			}
 		}
 		enableRanges();
-		drawTicks(0, 0, allSeries[0].oldest, getHighestYValue());	
+		drawTicks(0, 0, allDisplaySeries[0].oldest, getHighestYValue());	
 	}
-
+	function updateSlider() {
+		// Update graph min
+		var minTimer = null;
+		$("#rangeXMin").on('slidestop', function(event) {
+			if(!minTimer) {
+				minTimer = window.setTimeout(function() {clearTimeout(minTimer);}, 1000);
+				alert("MIN " + $(event.target).val());
+				
+				for(var i in allDisplaySeries) {	
+					if(allDisplaySeries[i].selected) {
+						var point = 0;
+						for(var date = 0; date < allDisplaySeries[i].getNumPoints(); date++) {
+							if(allDisplaySeries[i].get(date) - getDateFromString(allDisplaySeries[i].get(point).time) == 0) {
+								if(parseInt(date) < parseInt($(event.target).val())) {
+									console.log("Filtered: " + allDisplaySeries[i].get(point).time);
+									allDisplaySeries[i].get(point).visible = false;
+										
+								} else {
+									allDisplaySeries[i].get(point).visible = true;
+								}
+								point++;
+							}
+						}
+					}
+				}
+				setupCanvas();
+				drawallDisplaySeries();
+				$("#rangeXMin").slider('refresh');
+			}
+		});			
+	}
+	var eventsBuilt = false;
 	function enableRanges() {
 		if(numSelected == 0) {
 			$("#rangeXMin").slider('disable');		
@@ -136,53 +217,38 @@ function DrawRegion(allSeries,dates, width, height) {
 			
 			// Change min and max labels
 			$("#minDate").html(getShortDate(0));
-			$("#maxDate").html(getShortDate(dates.length-1));
+			$("#maxDate").html(getShortDate(allDisplaySeries[0].getNumPoints()-1));
 			
 			// Change the maximum value
-			$("#rangeXMax").attr("max", dates.length);
-			$("#rangeXMin").attr("max", dates.length);
+			$("#rangeXMax").attr("max", allDisplaySeries[0].getNumPoints());
+			$("#rangeXMin").attr("max", allDisplaySeries[0].getNumPoints());
 			
 			$("#rangeXMax").slider('refresh');
 			$("#rangeXMin").slider('refresh');
 			
 			// Update graph max
-			$("#rangeXMax").on('slidestop', function(event) {
-				alert("MAX " + $(event.target).val());
-				$("#rangeXMax").slider('refresh');
-			});	
-			
-			var drawableSeries = allSeries.slice();
-			// Update graph min
-			var minTimer = null;
-			$("#rangeXMin").on('slidestop', function(event) {
-				if(!minTimer) {
-					minTimer = window.setTimeout(function() {clearTimeout(minTimer);}, 1000);
-					alert("MIN " + $(event.target).val());
-					
-					for(var i in allSeries) {	
-						if(allSeries[i].selected) {
-							var point = 0;
-							for(var date = 0; date < dates.length; date++) {
-								if(dates[date] - getDateFromString(allSeries[i].get(point).time) == 0) {
-									if(parseInt(date) < parseInt($(event.target).val())) {
-										console.log("Filtered: " + allSeries[i].get(point).time);
-										allSeries[i].get(point).visible = false;
-											
-									} else {
-										allSeries[i].get(point).visible = true;
-									}
-									point++;
-								}
-							}
-						}
-					}
+			// $("#rangeXMax").on('slidestop', function(event) {
+				// alert("MAX " + $(event.target).val());
+				// $("#rangeXMax").slider('refresh');
+			// });	
+			// updateSlider();	
+			if(!eventsBuilt) {
+				eventsBuilt = true;
+				$("#rangeXMin").on('slidestop', function(event) {
 					setupCanvas();
-					drawAllSeries();
-					$("#rangeXMin").slider('refresh');
-				}
-			});			
+					drawallDisplaySeries();
+					
+				});
+				
+				$("#rangeXMax").on('slidestop', function(event) {
+					setupCanvas();
+					drawallDisplaySeries();
+				});			
+			}
 		}
 	}
+	
+	
 	
 	function drawTicks(minX, minY, maxX, maxY) {
 		
@@ -195,15 +261,15 @@ function DrawRegion(allSeries,dates, width, height) {
 			var yPos = originY + graphH;
 			drawLine(xPos, yPos, xPos, yPos + 10, "#aaa");
 
-			if(dates) {
-				var dateIndex = parseInt(dates.length / NUM_X_TICKS) * i;
+			if(allDisplaySeries && allDisplaySeries[0]) {
+				var dateIndex = parseInt(allDisplaySeries[0].getNumPoints() / NUM_X_TICKS) * i;
 			
 				context.font = "12px sans-serif";
 				context.textAlign = "center";
 				context.fillText(getShortDate(dateIndex), xPos, yPos + 25);
 			}
 		}
-		if(dates) {
+		if(allDisplaySeries) {
 			drawText(X_LABEL, originX + graphW/2 + 20, originY + graphH + 60, 0);
 		}
 		
@@ -217,7 +283,7 @@ function DrawRegion(allSeries,dates, width, height) {
 			var yPos = originY + i * hUnit - hUnit;
 			drawLine(xPos - 10, yPos, xPos + graphW, yPos, "#aaa");
 			
-			if(allSeries && numSelected > 0) {				
+			if(allDisplaySeries && numSelected > 0) {				
 				var valueIndex = (maxY / NUM_Y_TICKS) * (NUM_Y_TICKS - i + 1);
 				context.font = "12px sans-serif";
 				context.textAlign = "right";
@@ -245,15 +311,18 @@ function DrawRegion(allSeries,dates, width, height) {
 	}
 	
 	function getShortDate(dateIndex) {
-		return dates[dateIndex].toUTCString().split(' ')[2] + " '" 
-		+ dates[dateIndex].getFullYear().toString().charAt(2) 
-		+ dates[dateIndex].getFullYear().toString().charAt(3);
+		var date = getDateFromString(allDisplaySeries[0].get(dateIndex).time);
+		return date.toUTCString().split(' ')[2] + " '" 
+		+ date.getFullYear().toString().charAt(2) 
+		+ date.getFullYear().toString().charAt(3);
 	}
 	
 	function getDateFromString(str) {
 		var temp = str.split("-");
 		return new Date(temp[0], temp[1]-1, temp[2]); // Month is 0 to 11
 	}
-	
+	function getDate(date) {
+		return date.getFullYear() + "-" + (parseInt(date.getMonth()) + 1) + "-" + date.getDate();
+	}
 	draw();
 }
