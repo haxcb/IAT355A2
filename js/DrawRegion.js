@@ -9,6 +9,10 @@ function DrawRegion(allSeries,dates, width, height) {
 	var graphH = height - originY * 2;
 	
 	function setupCanvas() { 
+		$("#rangeXMin").slider('disable');		
+		$("#rangeXMax").slider('disable');	
+		$("#rangeXMin").slider('refresh');			
+		$("#rangeXMax").slider('refresh');			
 		numSelected = 0;
 		context = document.getElementById("canvas").getContext("2d");
 		context.canvas.width = width;
@@ -108,8 +112,31 @@ function DrawRegion(allSeries,dates, width, height) {
 			}
 		}
 		
-		drawTicks(0, 0, allSeries[0].oldest, getHighestYValue());
+		enableRanges();
+		drawTicks(0, 0, allSeries[0].oldest, getHighestYValue());	
+	}
+	
+	function enableRanges() {
+		alert("WTH");
+		if(numSelected == 0) {
+			$("#rangeXMin").slider('disable');
+			$("#rangeXMin").slider('refresh');			
+			$("#rangeXMax").slider('disable');
+			$("#rangeXMax").slider('refresh');			
+		} else {
 			
+			$("#rangeXMin").slider('enable');		
+			$("#rangeXMax").slider('enable');
+			
+			$("#rangeXMax").on('slidestop', function(event) {
+				alert("MAX " + $(event.target).val());
+				$("#rangeXMax").slider('refresh');
+			});			
+			$("#rangeXMin").on('slidestop', function(event) {
+				alert("MIN " + $(event.target).val());
+				$("#rangeXMin").slider('refresh');
+			});			
+		}
 	}
 	
 	function drawTicks(minX, minY, maxX, maxY) {

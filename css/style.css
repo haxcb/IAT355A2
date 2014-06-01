@@ -29,13 +29,13 @@ section {
 	border:1px solid #aaaaaa;
 	background-color:#eee;
 	width:980px;
-	margin-top:10px;
+	margin:10px 0;
 	padding:10px;
 }
 
 #buttons {
 	width:980px;
-	margin:0 auto;
+	margin:20px auto;
 	position:relative;
 	text-align:center;
 }
@@ -43,7 +43,7 @@ section {
 button {
 	background-color:#ccc;
 	border:0;
-	padding: 10px 20px;
+	padding: 10px 15px;
 	border-radius:5px;
 	color:#333;
 	display:inline-block;

@@ -4,8 +4,10 @@
 		<title>Time Series</title>
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400' rel='stylesheet' type='text/css'>
 		<link href='http://fonts.googleapis.com/css?family=Quattrocento+Sans' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" href="css/jquery.mobile-1.4.2.min.css">
 		<link rel="stylesheet" type="text/css" href="css/style.css" />
 		<script src="js/jquery-1.11.1.min.js"></script>
+		<script src="js/jquery.mobile-1.4.2.min.js"></script>
 		<script src="js/jquery-csv.js"></script>		
 	</head>
 	<body>
@@ -13,8 +15,16 @@
 			<h1>Time Series</h1>
 			<canvas id="canvas"></canvas>
 			<section>
-				<input type="file" id="file" name="file" /><br />
+				<input type="file" id="file" name="file" data-role="none" /><br />
 				<div id="buttons"></div>
+				 <form>
+					<div data-role="rangeslider">
+						<label for="rangeXMin">Adjust Date Range:</label>
+						<input type="range" name="rangeXMin" id="rangeXMin" min="0" max="100" value="40">
+						<label for="rangeXMax">Adjust Date Range:</label>
+						<input type="range" name="rangeXMax" id="rangeXMax" min="0" max="100" value="80">
+					</div>
+				</form>
 			</section>
 		</div>
 		<script src="js/Point.js"></script>
