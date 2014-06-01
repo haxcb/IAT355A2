@@ -12,7 +12,7 @@ function DrawRegion(allSeries,dates, width, height) {
 		$("#rangeXMin").slider('disable');		
 		$("#rangeXMax").slider('disable');	
 		$("#rangeXMin").css('display', 'none');
-		$("#rangeXMax").css('display', 'none');
+		$("#rangeXMax").css('display', 'none');			
 		numSelected = 0;
 		context = document.getElementById("canvas").getContext("2d");
 		context.canvas.width = width;
@@ -20,6 +20,8 @@ function DrawRegion(allSeries,dates, width, height) {
 		drawAxis();
 	}
 	function draw() {
+		if(dates)
+			$("#rangeXMax").val(dates.length);
 		setupCanvas();
 		buildSeriesButtons();
 		drawTicks(0, 0, 0, 0);
@@ -113,11 +115,10 @@ function DrawRegion(allSeries,dates, width, height) {
 				}
 			}
 		}
-		
 		enableRanges();
 		drawTicks(0, 0, allSeries[0].oldest, getHighestYValue());	
 	}
-	
+
 	function enableRanges() {
 		if(numSelected == 0) {
 			$("#rangeXMin").slider('disable');		
@@ -135,10 +136,14 @@ function DrawRegion(allSeries,dates, width, height) {
 			
 			// Change the maximum value
 			$("#rangeXMax").attr("max", dates.length);
+			$("#rangeXMin").attr("max", dates.length);
+			
+			$("#rangeXMax").slider('refresh');
+			$("#rangeXMin").slider('refresh');
 			
 			// Update graph max
 			$("#rangeXMax").on('slidestop', function(event) {
-				// alert("MAX " + $(event.target).val());
+				alert("MAX " + $(event.target).val());
 				$("#rangeXMax").slider('refresh');
 			});	
 			
