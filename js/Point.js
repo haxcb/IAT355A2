@@ -3,4 +3,5 @@ function Point(x, y, time, value) {
 	this.y = y;
 	this.time = time;
 	this.value = value;
+	this.visible = true;
 }

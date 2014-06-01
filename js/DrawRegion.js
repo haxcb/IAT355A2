@@ -11,8 +11,8 @@ function DrawRegion(allSeries,dates, width, height) {
 	function setupCanvas() { 
 		$("#rangeXMin").slider('disable');		
 		$("#rangeXMax").slider('disable');	
-		$("#rangeXMin").slider('refresh');			
-		$("#rangeXMax").slider('refresh');			
+		$("#rangeXMin").css('display', 'none');
+		$("#rangeXMax").css('display', 'none');
 		numSelected = 0;
 		context = document.getElementById("canvas").getContext("2d");
 		context.canvas.width = width;
@@ -99,9 +99,11 @@ function DrawRegion(allSeries,dates, width, height) {
 					for(var label = 0; label < dates.length; label++) {
 						var pointTime = allSeries[i].get(point).time;
 						if(dates[label] - getDateFromString(pointTime) == 0) {
-							var currY = originY + graphH - allSeries[i].get(point).value * unitY;
-							drawLine(currX, prevY, currX, currY, color);
-							prevY = currY;
+							if(allSeries[i].get(point).visible) {
+								var currY = originY + graphH - allSeries[i].get(point).value * unitY;
+								drawLine(currX, prevY, currX, currY, color);
+								prevY = currY;
+							}
 							point++;
 						}
 						// console.log("Point: " + pointTime + " Label: " + dates[label].getFullYear() + "-" + (parseInt(dates[label].getMonth()) + 1) + "-" + dates[label].getDate());
@@ -117,24 +119,56 @@ function DrawRegion(allSeries,dates, width, height) {
 	}
 	
 	function enableRanges() {
-		alert("WTH");
 		if(numSelected == 0) {
-			$("#rangeXMin").slider('disable');
-			$("#rangeXMin").slider('refresh');			
-			$("#rangeXMax").slider('disable');
-			$("#rangeXMax").slider('refresh');			
+			$("#rangeXMin").slider('disable');		
+			$("#rangeXMax").slider('disable');	
+			$("#minDate").html("Min Date");
+			$("#maxDate").html("Max Date");
 		} else {
-			
+			// Enable range X sliders
 			$("#rangeXMin").slider('enable');		
 			$("#rangeXMax").slider('enable');
 			
+			// Change min and max labels
+			$("#minDate").html(getShortDate(0));
+			$("#maxDate").html(getShortDate(dates.length-1));
+			
+			// Change the maximum value
+			$("#rangeXMax").attr("max", dates.length);
+			
+			// Update graph max
 			$("#rangeXMax").on('slidestop', function(event) {
-				alert("MAX " + $(event.target).val());
+				// alert("MAX " + $(event.target).val());
 				$("#rangeXMax").slider('refresh');
-			});			
+			});	
+			
+			// Update graph min
+			var minTimer = null;
 			$("#rangeXMin").on('slidestop', function(event) {
-				alert("MIN " + $(event.target).val());
-				$("#rangeXMin").slider('refresh');
+				if(minTimer == null) {
+					minTimer = window.setTimeout(function() {clearTimeout(minTimer);}, 1000);
+					alert("MIN " + $(event.target).val());
+					for(var i in allSeries) {	
+						if(allSeries[i].selected) {
+							var point = 0;
+							for(var date = 0; date < dates.length; date++) {
+								if(dates[date] - getDateFromString(allSeries[i].get(point).time) == 0) {
+									if(parseInt(date) < parseInt($(event.target).val())) {
+										console.log("Filtered: " + allSeries[i].get(point).time);
+										allSeries[i].get(point).visible = false;
+											
+									} else {
+										allSeries[i].get(point).visible = true;
+									}
+									point++;
+								}
+							}
+						}
+					}
+					setupCanvas();
+					drawAllSeries();
+					$("#rangeXMin").slider('refresh');
+				}
 			});			
 		}
 	}
@@ -155,7 +189,7 @@ function DrawRegion(allSeries,dates, width, height) {
 			
 				context.font = "12px sans-serif";
 				context.textAlign = "center";
-				context.fillText(dates[dateIndex].toUTCString().split(' ')[2] + " '" + dates[dateIndex].getFullYear().toString().charAt(2) + dates[dateIndex].getFullYear().toString().charAt(3), xPos, yPos + 25);
+				context.fillText(getShortDate(dateIndex), xPos, yPos + 25);
 			}
 		}
 		if(dates) {
@@ -197,6 +231,12 @@ function DrawRegion(allSeries,dates, width, height) {
 		context.fillStyle = "#888";
 		context.fillText(text, x, y);
 		context.restore();	
+	}
+	
+	function getShortDate(dateIndex) {
+		return dates[dateIndex].toUTCString().split(' ')[2] + " '" 
+		+ dates[dateIndex].getFullYear().toString().charAt(2) 
+		+ dates[dateIndex].getFullYear().toString().charAt(3);
 	}
 	
 	function getDateFromString(str) {

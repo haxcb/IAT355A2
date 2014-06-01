@@ -50,6 +50,24 @@ button {
 	margin:5px;
 }
 
+#minDate{
+	float:left;
+}
+#maxDate {
+	float:right;
+}
+
+.ui-rangeslider .ui-rangeslider-sliders{
+	margin: 0 100px;
+}
+
+form{
+	width:90%;
+	margin: 0 auto;
+	text-align:center;
+}
+
+
 .color0 {
 	background-color:#E7492F; /* Red */
 }
