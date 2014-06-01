@@ -270,15 +270,19 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 	}
 	
 	function getShortDate(dateIndex) {
-		// if(!NaN(dateIndex)) return;
-		// if(dateIndex > 
-		var date = getDateFromString(allDisplaySeries[0].get(dateIndex).time);
-		return date.toUTCString().split(' ')[2] 
-		+ " "
-		+ date.getDate()
-		+ " '" 
-		+ date.getFullYear().toString().charAt(2) 
-		+ date.getFullYear().toString().charAt(3);
+		if(dateIndex < parseInt(rangeMin.val())) {
+			dateIndex = 0;
+		} else if(parseInt(dateIndex >= rangeMax.val())) {
+			dateIndex = parseInt(allDisplaySeries[0].getNumPoints()) - 1;
+		} else {
+			var date = getDateFromString(allDisplaySeries[0].get(dateIndex).time);
+			return date.toUTCString().split(' ')[2] 
+			+ " "
+			+ date.getDate()
+			+ " '" 
+			+ date.getFullYear().toString().charAt(2) 
+			+ date.getFullYear().toString().charAt(3);
+		}
 	}
 	
 	function getDateFromString(str) {
