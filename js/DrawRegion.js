@@ -126,7 +126,9 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 					// context.fillStyle = color;
 					// context.fillRect(originX, originY, graphW, graphH);	
 					
-					var unitX = graphW / allDisplaySeries[i].getNumPoints();
+					var minStart = $("#rangeXMin").val();
+					var maxEnd = $("#rangeXMax").val();
+					var unitX = graphW / (maxEnd - minStart);
 					var unitY = graphH / maxY;
 					var currX = originX;
 					var point = 0;
@@ -136,7 +138,7 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 					
 					context.beginPath();
 					
-					for(var p = 0; p < allDisplaySeries[i].getNumPoints(); p++) {
+					for(var p = minStart; p < maxEnd; p++) {
 						if(parseFloat(allDisplaySeries[i].get(p).value) > -1) {
 							var currY = originY + graphH - allDisplaySeries[i].get(p).value * unitY;
 							// console.log(currX + " " +  prevY);
@@ -165,8 +167,10 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 			$("#rangeXMax").slider('enable');
 			
 			// Change min and max labels
-			$("#minDate").html(getShortDate(0));
-			$("#maxDate").html(getShortDate(allDisplaySeries[0].getNumPoints()-1));
+			var minD = $("#rangeXMin").val();
+			var maxD = $("#rangeXMax").val();
+			$("#minDate").html(getShortDate(parseInt(minD)));
+			$("#maxDate").html(getShortDate(parseInt(maxD) - 1));
 			
 			// Change the maximum value
 			$("#rangeXMax").attr("max", allDisplaySeries[0].getNumPoints());
@@ -212,10 +216,13 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 			drawLine(xPos, yPos, xPos, yPos + 10, "#aaa");
 
 			if(allDisplaySeries && allDisplaySeries[0]) {
-				var dateIndex = parseInt(allDisplaySeries[0].getNumPoints() / NUM_X_TICKS) * i;
+				var maxLimit = $("#rangeXMax").val();
+				var minLimit = $("#rangeXMin").val();
+				var dateIndex = parseInt((parseInt(maxLimit) - parseInt(minLimit)) / NUM_X_TICKS) * i + parseInt(minLimit);
 			
 				context.font = "12px sans-serif";
 				context.textAlign = "center";
+				console.log(dateIndex);
 				context.fillText(getShortDate(dateIndex), xPos, yPos + 25);
 			}
 		}
@@ -262,7 +269,10 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 	
 	function getShortDate(dateIndex) {
 		var date = getDateFromString(allDisplaySeries[0].get(dateIndex).time);
-		return date.toUTCString().split(' ')[2] + " '" 
+		return date.toUTCString().split(' ')[2] 
+		+ " "
+		+ date.getDate()
+		+ " '" 
 		+ date.getFullYear().toString().charAt(2) 
 		+ date.getFullYear().toString().charAt(3);
 	}
