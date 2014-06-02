@@ -1,19 +1,41 @@
+/******************************************************
+  By Hasiba Arshad; IAT355; Assignment 2; Summer 2014
+*******************************************************/
+
 function DrawRegion(allTimeSeries, allDates, width, height) {
 	var context;
-	var numSelected = 0;
+	
+	// Constants
 	var Y_LABEL = "RATE";
 	var X_LABEL = "TIME";
 	var Y_POINTS = 100;
+	
+	// Keep track of the number of series that are selected
+	var numSelected = 0;
+	
+	// Allow some event handlers to be attached only once
+	var eventsBuilt = false;
+	
+	// Grid dimensions
 	var originX = parseInt(width / 12);
 	var originY = parseInt(width / 12);
 	var graphW = width - originX * 2;
 	var graphH = height - originY * 2;
+	
+	// jQuery variables for the slider elements
 	var rangeMinX = $("#rangeXMin");
 	var rangeMaxX = $("#rangeXMax");	
 	var rangeMinY = $("#rangeYMin");
 	var rangeMaxY = $("#rangeYMax");
+	
+	// Time Series data arrays
 	var allDisplaySeries;
 	var allSeries = allTimeSeries;
+	
+	
+	/******************************************************
+					MAIN DRAWING METHODS
+	*******************************************************/
 	
 	function setupCanvas() { 
 		allDisplaySeries = buildDisplayable();
@@ -42,49 +64,6 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 		drawTicks(0, 0, 0, 0);
 	}
 	
-	function buildDisplayable() {
-		var highestY = getHighestYValue(allSeries);
-		var highestSeries = getHighestYSeries(allSeries);
-		// alert(highestY + " " + numSelected);
-		var displayableSeries = [];
-		console.log("BUILDING");
-		var selectedCount = 0;
-		for(var i in allSeries) {
-			// console.log(allSeries[i].name);
-			displayableSeries[i] = new TimeSeries(allSeries[i].name);	
-			displayableSeries[i].selected = allSeries[i].selected;	
-			var pointIndex = 0;
-			
-			for(var date in allDates) {
-				var valuePoint = -1;
-				if(allDates[date] - getDateFromString(allSeries[i].get(pointIndex).time) == 0) {
-					// console.log(rangeMaxX.val() + " > " + date + " > " + rangeMinX.val());
-					if(parseInt(rangeMaxX.val()) >= date && parseInt(rangeMinX.val()) <= date) {
-						valuePoint = allSeries[i].get(pointIndex).value;
-						// var minY = getYValue(rangeMinY.val(), parseFloat(allSeries[i].maxValue));
-						// var maxY = getYValue(rangeMaxY.val(), parseFloat(allSeries[i].maxValue));
-						// if(numSelected > 0 && allSeries[i].selected && parseFloat(allSeries[i].maxValue).toFixed(2) != parseFloat(highestY).toFixed(2)) {
-							minY = getYValue(rangeMinY.val(), parseFloat(highestY));
-							maxY = getYValue(rangeMaxY.val(), parseFloat(highestY));
-						// }
-						if(parseFloat(maxY) < valuePoint || parseFloat(minY) > valuePoint) {
-							// if(allSeries[i].selected)
-								// console.log(valuePoint);
-							valuePoint = -1;
-						}
-					}
-					pointIndex++;
-				}
-				var point = new Point(0, 0, getDate(allDates[date]), valuePoint);
-				displayableSeries[i].push(point);
-			}
-			// if(i == 4) {
-				// alert(displayableSeries[i].maxValue);
-			// }
-		}
-		return displayableSeries;
-	}
-	
 	function drawAxis() {
 		// Y-axis
 		context.beginPath();
@@ -95,16 +74,47 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 		drawLine(originX, originY + graphH, originX + graphW, originY + graphH, "#aaa");
 	}
 	
-	function drawLine(x, y, x2, y2, color) {
-		context.strokeStyle = color;
-		context.moveTo(x, y);
-		context.lineTo(x2, y2);
-		context.stroke();
+	// Figure out which points should be drawn
+	function buildDisplayable() {
+		var highestY = getHighestYValue(allSeries);
+		var displayableSeries = [];
+		var selectedCount = 0;
+		
+		for(var i in allSeries) {
+			displayableSeries[i] = new TimeSeries(allSeries[i].name);	
+			displayableSeries[i].selected = allSeries[i].selected;	
+			var pointIndex = 0;
+			
+			for(var date in allDates) {
+				var valuePoint = -1;
+				if(allDates[date] - getDateFromString(allSeries[i].get(pointIndex).time) == 0) {
+					// console.log(rangeMaxX.val() + " > " + date + " > " + rangeMinX.val());
+					if(parseInt(rangeMaxX.val()) >= date && parseInt(rangeMinX.val()) <= date) {
+						valuePoint = allSeries[i].get(pointIndex).value;
+						minY = getYValue(rangeMinY.val(), parseFloat(highestY));
+						maxY = getYValue(rangeMaxY.val(), parseFloat(highestY));
+						
+						if(parseFloat(maxY) < valuePoint || parseFloat(minY) > valuePoint) {
+							valuePoint = -1;
+						}
+					}
+					pointIndex++;
+				}
+				var point = new Point(0, 0, getDate(allDates[date]), valuePoint);
+				displayableSeries[i].push(point);
+			}
+		}
+		return displayableSeries;
 	}
 	
 	function buildSeriesButtons() {
 		if(allDisplaySeries) {
-			$('#buttons').html('');
+			$('#buttons').html('<button>No data selected</button>');
+			$('h2').html(' ');
+			if(allDisplaySeries.length > 0) {
+				$('#buttons').html('');
+				$('h2').html('Select a series');
+			}
 			for(var i = 0; i < allDisplaySeries.length; i++) {
 				var button = $('<button/>', {
 					text: allDisplaySeries[i].name,
@@ -139,54 +149,13 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 		}
 	}
 	
-	// function getHighestSeries() {
-		// var maxY = 0;
-		// for(var i in allSeries) {
-			// if(allSeries[i].selected) {
-				// if(parseFloat(allSeries[i].maxValue) >= maxY) {
-					// maxY = i;
-				// }
-			// }
-		// }
-		// return maxY;		
-	// }
-	
-	function getHighestYValue(series) {
-		var maxY = 0;
-		for(var i in series) {
-			if(series[i].selected) {
-				if(parseFloat(series[i].maxValue) >= maxY) {
-					maxY = parseFloat(series[i].maxValue);
-				}
-			}
-		}
-		return maxY;
-	}	
-	function getHighestYSeries(series) {
-		var maxY = 0;
-		for(var i in series) {
-			if(series[i].selected) {
-				if(parseFloat(series[i].maxValue) >= maxY) {
-					maxY = i
-				}
-			}
-		}
-		return maxY;
-	}
-	
 	function drawallDisplaySeries() {
 		var maxY = getHighestYValue(allDisplaySeries);
 		var minD = getYValue(rangeMinY.val(), getHighestYValue(allSeries));
-		console.log(maxY);
 		for(var i in allDisplaySeries) {	
 			if(allDisplaySeries[i].selected) {
 				if($("#button" + i).hasClass("color" + i)) {
 					var color = $("#button" + i).css("background-color");
-					
-					// numSelected++;
-					// Fill bg with color
-					// context.fillStyle = color;
-					// context.fillRect(originX, originY, graphW, graphH);	
 					
 					var minStart = rangeMinX.val();
 					var maxEnd = rangeMaxX.val();
@@ -204,8 +173,8 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 					for(var p = minStart; p < parseInt(maxEnd); p++) {
 						if(parseFloat(allDisplaySeries[i].get(parseInt(p)).value) > -1) {
 							
-							currY = originY + graphH - (allDisplaySeries[i].get(parseInt(p)).value) * unitY + minD * unitY; // <-- trying to get y to scale!
-							// console.log(currX + " " +  prevY);
+							currY = originY + graphH - (allDisplaySeries[i].get(parseInt(p)).value) * unitY + minD * unitY;
+
 							if(currY == -1)
 								context.moveTo(currX, currY);
 							if(prevY == -1) {
@@ -233,12 +202,10 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 		drawTicks(0, minD, allDisplaySeries[0].oldest, getHighestYValue(allDisplaySeries));	
 	}
 	
-	var eventsBuilt = false;
 	function enableRangeSlider() {
 		if(numSelected > 0) {
 			var maxY = getHighestYValue(allDisplaySeries);
-			
-		
+
 			// Enable range X sliders
 			rangeMinX.slider('enable');		
 			rangeMaxX.slider('enable');
@@ -251,7 +218,7 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 			
 			var minD = getYValue(rangeMinY.val(), getHighestYValue(allSeries));
 			$("#minTitleY").html(parseFloat(minD).toFixed(2));
-			var maxD = getYValue(rangeMaxY.val(), getHighestYValue(allSeries));// * parseInt(rangeMaxY.val()) / Y_POINTS;
+			var maxD = getYValue(rangeMaxY.val(), getHighestYValue(allSeries));
 			$("#maxTitleY").html(parseFloat(maxD).toFixed(2));
 			
 			// Change the maximum value
@@ -310,14 +277,12 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 		$("#minTitleY").html("Min Rate");
 		$("#maxTitleY").html("Max Rate");	
 	}
-	
-	
-	
+
 	function drawTicks(minX, minY, maxX, maxY) {
 		
 		var NUM_X_TICKS = 9;
 		var wUnit = graphW / NUM_X_TICKS;
-		// alert(minY);
+
 		for(var i = 0; i <= NUM_X_TICKS; i++) {
 			context.beginPath();
 			var xPos = i * wUnit + originX;
@@ -331,7 +296,7 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 			
 				context.font = "12px sans-serif";
 				context.textAlign = "center";
-				// console.log(dateIndex);
+				
 				if(i == NUM_X_TICKS) {
 					dateIndex = parseInt(rangeMaxX.val()) - 1;
 				}
@@ -345,28 +310,33 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 		var NUM_Y_TICKS = 7;
 		var hUnit = graphH / NUM_Y_TICKS;
 		
-		// alert(numSelected);
+
 		for(var i = NUM_Y_TICKS; i >= 0; i--) {
 			context.beginPath();
 			var xPos = originX;
 			var yPos = originY + i * hUnit;
 			drawLine(xPos - 10, yPos, xPos + graphW, yPos, "#aaa");
-			// alert(minY);
+
 			if(allDisplaySeries && numSelected > 0) {				
 				var valueIndex = ((parseFloat(maxY) - parseFloat(minY)) / NUM_Y_TICKS) * (NUM_Y_TICKS - i) + minY;
 				context.font = "12px sans-serif";
 				context.textAlign = "right";
 				context.fillText(valueIndex.toFixed(2), xPos - 20, yPos + 5);
-				// alert("drawn");
 			}
 		}	
-		
-		if(numSelected > 0) {
-			// drawText(Y_LABEL, -(originY + graphH/2) + 20, 20, -Math.PI/2);
-		}
-				
-		// Draw extra space at top
-		// drawLine(originX, originY, originX, originY - hUnit, "#aaa");
+	
+	}
+	
+	
+	/******************************************************
+					DRAWING HELPER METHODS
+	*******************************************************/
+	
+	function drawLine(x, y, x2, y2, color) {
+		context.strokeStyle = color;
+		context.moveTo(x, y);
+		context.lineTo(x2, y2);
+		context.stroke();
 	}
 	
 	function drawText(text, x, y, rotation) {
@@ -378,6 +348,10 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 		context.fillText(text, x, y);
 		context.restore();	
 	}
+	
+	/******************************************************
+					DATE HELPER METHODS
+	*******************************************************/
 	
 	function getShortDate(dateIndex) {
 		if(dateIndex < parseInt(rangeMinX.val())) {
@@ -399,13 +373,31 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 		var temp = str.split("-");
 		return new Date(temp[0], temp[1]-1, temp[2]); // Month is 0 to 11
 	}
+	
 	function getDate(date) {
 		return date.getFullYear() + "-" + (parseInt(date.getMonth()) + 1) + "-" + date.getDate();
 	}
 	
+	
+	/******************************************************
+			COORDINATE CALCULATION HELPER METHODS
+	*******************************************************/
+	
 	function getYValue(num, max) {
 		return parseInt(num) / Y_POINTS * parseFloat(max);
 	}
+	
+	function getHighestYValue(series) {
+		var maxY = 0;
+		for(var i in series) {
+			if(series[i].selected) {
+				if(parseFloat(series[i].maxValue) >= maxY) {
+					maxY = parseFloat(series[i].maxValue);
+				}
+			}
+		}
+		return maxY;
+	}	
 	
 	draw();
 }

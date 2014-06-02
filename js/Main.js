@@ -1,3 +1,7 @@
+/******************************************************
+  By Hasiba Arshad; IAT355; Assignment 2; Summer 2014
+*******************************************************/
+
 $(document).ready(function() { 
 	var TITLE_MARKER = ',,,,,,,';
 	var text;
@@ -35,8 +39,7 @@ $(document).ready(function() {
 		var allTimeSeries = buildSeries(data);
 
 		$('h1').html(getGraphTitle(data));
-		
-		// alert(allTimeSeries[0].name);
+	
 		
 		// Organize data into objects
 		for(var row = 1; row < data.length; row++) {
@@ -51,40 +54,11 @@ $(document).ready(function() {
 			}
 		}
 		
-		// Build labels
+		// Build date labels
 		var allDates = buildAllDates(allTimeSeries[0].oldest, allTimeSeries[0].newest);
 
-		
-		
-		// var displayableSeries = buildDisplayable(allTimeSeries, allDates);
-		
-	
-		
-	  
-		// var html = '';
-		// html += "Oldest: " + displayableSeries[0].oldest + "<br />";
-		// html += 'Newest: ' + displayableSeries[0].newest + "<br />";
-		// for(var series in displayableSeries) {
-			// for(var i = 0; i < displayableSeries[series].getNumPoints(); i++) {
-				// html += i + ": " + displayableSeries[series].name + ": "  + displayableSeries[series].get(i).time + ", " + displayableSeries[series].get(i).value + "<br />";
-			// }
-		// }
-		
-		// $('p').html(html);
-		
-
-		// drawer = new DrawRegion(allTimeSeries, allDates, c_width, c_height);	
 		drawer = new DrawRegion(allTimeSeries, allDates, c_width, c_height);	
-		
-		// $("#rangeXMin").on('slidestop', function(event) {
-			// var displayableSeries = buildDisplayable(allTimeSeries, allDates);
-			// drawer.updateData(displayableSeries);
-		// });
-		
-		// $("#rangeXMax").on('slidestop', function(event) {
-			// var displayableSeries = buildDisplayable(allTimeSeries, allDates);
-			// drawer.updateData(displayableSeries);
-		// });
+
 	}
 	
 	

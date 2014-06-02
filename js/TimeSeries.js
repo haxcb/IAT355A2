@@ -1,3 +1,7 @@
+/******************************************************
+  By Hasiba Arshad; IAT355; Assignment 2; Summer 2014
+*******************************************************/
+
 function TimeSeries(name) {
 	this.name = name;
 	this.oldest = 0;
