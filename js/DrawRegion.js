@@ -2,7 +2,8 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 	var context;
 	var numSelected = 0;
 	var Y_LABEL = "RATE";
-	var X_LABEL = "DATE";
+	var X_LABEL = "TIME";
+	var Y_POINTS = 100;
 	var originX = parseInt(width / 12);
 	var originY = parseInt(width / 12);
 	var graphW = width - originX * 2;
@@ -100,7 +101,6 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 						allSeries[num].selected = !allSeries[num].selected;
 						reset() ;
 						drawallDisplaySeries();
-						rangeMaxY.val(parseFloat(getHighestYValue()));
 					}
 				});
 				$("#buttons").append(button);
@@ -169,6 +169,9 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 	var eventsBuilt = false;
 	function enableRangeSlider() {
 		if(numSelected > 0) {
+			var maxY = getHighestYValue();
+			
+		
 			// Enable range X sliders
 			rangeMinX.slider('enable');		
 			rangeMaxX.slider('enable');
@@ -176,22 +179,25 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 			rangeMaxY.slider('enable');
 			
 			// Change min and max labels
-			var minD = rangeMinX.val();
-			var maxD = rangeMaxX.val();
-			$("#minTitleX").html(getShortDate(parseInt(minD)));
-			$("#maxTitleX").html(getShortDate(parseInt(maxD) - 1));
+			$("#minTitleX").html(getShortDate(parseInt(rangeMinX.val())));
+			$("#maxTitleX").html(getShortDate(parseInt(rangeMaxX.val()) - 1));
 			
-			minD = rangeMinY.val();
-			maxD = rangeMaxY.val();
-			$("#minTitleY").html(parseInt(minD));
-			$("#maxTitleY").html(parseInt(maxD) - 1);
+			var minD = parseInt(rangeMinY.val()) / Y_POINTS * parseFloat(maxY);
+			var maxD = parseInt(rangeMaxY.val()) / Y_POINTS * parseFloat(maxY);
+			$("#minTitleY").html(parseFloat(minD).toFixed(2));
+			$("#maxTitleY").html(parseFloat(maxD).toFixed(2));
 			
 			// Change the maximum value
 			rangeMaxX.attr("max", allDisplaySeries[0].getNumPoints());
 			rangeMinX.attr("max", allDisplaySeries[0].getNumPoints());
 			
+			rangeMaxY.attr("max", Y_POINTS);
+			rangeMinY.attr("max", Y_POINTS);
+			
 			rangeMaxX.slider('refresh');
 			rangeMinX.slider('refresh');
+			rangeMaxY.slider('refresh');
+			rangeMinY.slider('refresh');
 			
 			if(!eventsBuilt) {
 				eventsBuilt = true;
@@ -230,12 +236,12 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 		$("#maxTitleX").html("Max Date");	
 		
 		rangeMinY.val(0);
-		rangeMaxY.val(parseFloat(getHighestYValue()));
+		rangeMaxY.val(Y_POINTS);
 		
 		rangeMinY.slider('disable');		
 		rangeMaxY.slider('disable');
 		$("#minTitleY").html("Min Rate");
-		$("#maxTitleY").html("Max DRate");	
+		$("#maxTitleY").html("Max Rate");	
 	}
 	
 	
@@ -259,6 +265,9 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 				context.font = "12px sans-serif";
 				context.textAlign = "center";
 				console.log(dateIndex);
+				if(i == NUM_X_TICKS) {
+					dateIndex = parseInt(rangeMaxX.val()) - 1;
+				}
 				context.fillText(getShortDate(dateIndex), xPos, yPos + 25);
 			}
 		}
