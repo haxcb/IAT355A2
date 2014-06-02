@@ -4,6 +4,7 @@ function TimeSeries(name) {
 	this.newest = 0;
 	this.maxValue = 0;
 	this.selected = false;
+	this.weight = 1;
 	var points = [];
 	
 	this.push = function(item) {

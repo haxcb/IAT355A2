@@ -15,30 +15,28 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 	var allDisplaySeries;
 	var allSeries = allTimeSeries;
 	
-	function reset() {
-		// numSelected = 0;
-		setupCanvas();
+	function setupCanvas() { 
+		allDisplaySeries = buildDisplayable();
+		fastSetup()
 	}
 	
-	function setupCanvas() { 
+	function fastSetup() {
 		if(numSelected == 0) {
 			disableRangeSlider();
 		} else {
 			enableRangeSlider();
-		}		
+		}			
+		context = document.getElementById("canvas").getContext("2d");
+		context.canvas.width = width;
+		context.canvas.height = height;	
+		drawAxis();
+	}
+	
+	function draw() {	
 		rangeMinX.css('display', 'none');
 		rangeMaxX.css('display', 'none');
 		rangeMinY.css('display', 'none');
-		rangeMaxY.css('display', 'none');			
-		context = document.getElementById("canvas").getContext("2d");
-		context.canvas.width = width;
-		context.canvas.height = height;
-		allDisplaySeries = buildDisplayable();
-		drawAxis();
-	}
-	function draw() {
-		// if(allDisplaySeries && allDisplaySeries[0])
-			// rangeMaxX.val(allDisplaySeries[0].getNumPoints());
+		rangeMaxY.css('display', 'none');	
 		setupCanvas();
 		buildSeriesButtons();
 		drawTicks(0, 0, 0, 0);
@@ -120,7 +118,21 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 							numSelected++;
 						else
 							numSelected--;
-						reset() ;
+						setupCanvas() ;
+						drawallDisplaySeries();
+					},
+					mouseover: function() {
+						console.log("mouse over");
+						var num = parseInt(this.id.charAt(this.id.length-1));
+						allSeries[num].weight = 5;
+						fastSetup() ;
+						drawallDisplaySeries();
+					},
+					mouseout: function() {
+						console.log("mouse out");
+						var num = parseInt(this.id.charAt(this.id.length-1));
+						allSeries[num].weight = 1;
+						fastSetup() ;
 						drawallDisplaySeries();
 					}
 				});
@@ -198,7 +210,9 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 								prevY = currY;
 								prevX = currX;
 							}
+							context.lineWidth = allSeries[i].weight;
 							drawLine(parseInt(prevX), parseInt(prevY), parseInt(currX), parseInt(currY), color);
+							
 							prevY = currY;
 							prevX = currX;
 						}
@@ -207,6 +221,7 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 				}
 			}
 		}
+		context.lineWidth = 1;
 		enableRangeSlider();
 		
 		drawTicks(0, minD, allDisplaySeries[0].oldest, getHighestYValue(allDisplaySeries));	
