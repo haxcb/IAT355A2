@@ -122,17 +122,15 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 						drawallDisplaySeries();
 					},
 					mouseover: function() {
-						console.log("mouse over");
 						var num = parseInt(this.id.charAt(this.id.length-1));
-						allSeries[num].weight = 5;
-						fastSetup() ;
+						allSeries[num].weight = 3;
+						fastSetup();
 						drawallDisplaySeries();
 					},
 					mouseout: function() {
-						console.log("mouse out");
 						var num = parseInt(this.id.charAt(this.id.length-1));
 						allSeries[num].weight = 1;
-						fastSetup() ;
+						fastSetup();
 						drawallDisplaySeries();
 					}
 				});
@@ -201,23 +199,31 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 					var prevX = -1;
 					
 					context.beginPath();
+					var currY = -1;
 					
-					for(var p = minStart; p < maxEnd; p++) {
-						if(parseFloat(allDisplaySeries[i].get(p).value) > -1) {
-							var currY = originY + graphH - (allDisplaySeries[i].get(p).value) * unitY + minD * unitY; // <-- trying to get y to scale!
+					for(var p = minStart; p < parseInt(maxEnd); p++) {
+						if(parseFloat(allDisplaySeries[i].get(parseInt(p)).value) > -1) {
+							
+							currY = originY + graphH - (allDisplaySeries[i].get(parseInt(p)).value) * unitY + minD * unitY; // <-- trying to get y to scale!
 							// console.log(currX + " " +  prevY);
+							if(currY == -1)
+								context.moveTo(currX, currY);
 							if(prevY == -1) {
 								prevY = currY;
 								prevX = currX;
 							}
-							context.lineWidth = allSeries[i].weight;
-							drawLine(parseInt(prevX), parseInt(prevY), parseInt(currX), parseInt(currY), color);
+							
+							context.lineTo(currX, currY);
+							// drawLine(parseInt(prevX), parseInt(prevY), parseInt(currX), parseInt(currY), color);
 							
 							prevY = currY;
 							prevX = currX;
 						}
 						currX += unitX;
-					}					
+					}
+					context.lineWidth = allSeries[i].weight;
+					context.strokeStyle = color;
+					context.stroke();
 				}
 			}
 		}
