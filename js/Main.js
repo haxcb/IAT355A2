@@ -53,8 +53,7 @@ $(document).ready(function() {
 		
 		// Build labels
 		var allDates = buildAllDates(allTimeSeries[0].oldest, allTimeSeries[0].newest);
-		$("#rangeXMax").val(allDates.length);
-		$("#rangeXMin").slider('refresh');
+
 		
 		
 		// var displayableSeries = buildDisplayable(allTimeSeries, allDates);

@@ -50,10 +50,10 @@ button {
 	margin:5px;
 }
 
-#minDate{
+#minTitleX, #minTitleY {
 	float:left;
 }
-#maxDate {
+#maxTitleX, #maxTitleY {
 	float:right;
 }
 

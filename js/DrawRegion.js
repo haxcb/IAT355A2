@@ -7,8 +7,10 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 	var originY = parseInt(width / 12);
 	var graphW = width - originX * 2;
 	var graphH = height - originY * 2;
-	var rangeMin = $("#rangeXMin");
-	var rangeMax = $("#rangeXMax");
+	var rangeMinX = $("#rangeXMin");
+	var rangeMaxX = $("#rangeXMax");	
+	var rangeMinY = $("#rangeYMin");
+	var rangeMaxY = $("#rangeYMax");
 	var allDisplaySeries;
 	var allSeries = allTimeSeries;
 	
@@ -23,8 +25,10 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 		} else {
 			enableRangeSlider();
 		}		
-		rangeMin.css('display', 'none');
-		rangeMax.css('display', 'none');			
+		rangeMinX.css('display', 'none');
+		rangeMaxX.css('display', 'none');
+		rangeMinY.css('display', 'none');
+		rangeMaxY.css('display', 'none');			
 		context = document.getElementById("canvas").getContext("2d");
 		context.canvas.width = width;
 		context.canvas.height = height;
@@ -33,7 +37,7 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 	}
 	function draw() {
 		// if(allDisplaySeries && allDisplaySeries[0])
-			// rangeMax.val(allDisplaySeries[0].getNumPoints());
+			// rangeMaxX.val(allDisplaySeries[0].getNumPoints());
 		setupCanvas();
 		buildSeriesButtons();
 		drawTicks(0, 0, 0, 0);
@@ -51,8 +55,8 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 			for(var date in allDates) {
 				var val = -1;
 				if(allDates[date] - getDateFromString(allSeries[i].get(pointIndex).time) == 0) {
-					// console.log(rangeMax.val() + " > " + date + " > " + rangeMin.val());
-					if(parseInt(rangeMax.val()) >= date && parseInt(rangeMin.val()) <= date) {
+					// console.log(rangeMaxX.val() + " > " + date + " > " + rangeMinX.val());
+					if(parseInt(rangeMaxX.val()) >= date && parseInt(rangeMinX.val()) <= date) {
 						val = allSeries[i].get(pointIndex).value;
 						
 					}
@@ -96,6 +100,7 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 						allSeries[num].selected = !allSeries[num].selected;
 						reset() ;
 						drawallDisplaySeries();
+						rangeMaxY.val(parseFloat(getHighestYValue()));
 					}
 				});
 				$("#buttons").append(button);
@@ -128,8 +133,8 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 					// context.fillStyle = color;
 					// context.fillRect(originX, originY, graphW, graphH);	
 					
-					var minStart = rangeMin.val();
-					var maxEnd = rangeMax.val();
+					var minStart = rangeMinX.val();
+					var maxEnd = rangeMaxX.val();
 					var unitX = graphW / (maxEnd - minStart);
 					var unitY = graphH / maxY;
 					var currX = originX;
@@ -165,31 +170,48 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 	function enableRangeSlider() {
 		if(numSelected > 0) {
 			// Enable range X sliders
-			rangeMin.slider('enable');		
-			rangeMax.slider('enable');
+			rangeMinX.slider('enable');		
+			rangeMaxX.slider('enable');
+			rangeMinY.slider('enable');		
+			rangeMaxY.slider('enable');
 			
 			// Change min and max labels
-			var minD = rangeMin.val();
-			var maxD = rangeMax.val();
-			$("#minDate").html(getShortDate(parseInt(minD)));
-			$("#maxDate").html(getShortDate(parseInt(maxD) - 1));
+			var minD = rangeMinX.val();
+			var maxD = rangeMaxX.val();
+			$("#minTitleX").html(getShortDate(parseInt(minD)));
+			$("#maxTitleX").html(getShortDate(parseInt(maxD) - 1));
+			
+			minD = rangeMinY.val();
+			maxD = rangeMaxY.val();
+			$("#minTitleY").html(parseInt(minD));
+			$("#maxTitleY").html(parseInt(maxD) - 1);
 			
 			// Change the maximum value
-			rangeMax.attr("max", allDisplaySeries[0].getNumPoints());
-			rangeMin.attr("max", allDisplaySeries[0].getNumPoints());
+			rangeMaxX.attr("max", allDisplaySeries[0].getNumPoints());
+			rangeMinX.attr("max", allDisplaySeries[0].getNumPoints());
 			
-			rangeMax.slider('refresh');
-			rangeMin.slider('refresh');
+			rangeMaxX.slider('refresh');
+			rangeMinX.slider('refresh');
 			
 			if(!eventsBuilt) {
 				eventsBuilt = true;
-				rangeMin.on('slidestop', function(event) {
+				rangeMinX.on('slidestop', function(event) {
 					setupCanvas();
 					drawallDisplaySeries();
 					
 				});
 				
-				rangeMax.on('slidestop', function(event) {
+				rangeMaxX.on('slidestop', function(event) {
+					setupCanvas();
+					drawallDisplaySeries();
+				});	
+				rangeMinY.on('slidestop', function(event) {
+					setupCanvas();
+					drawallDisplaySeries();
+					
+				});
+				
+				rangeMaxY.on('slidestop', function(event) {
 					setupCanvas();
 					drawallDisplaySeries();
 				});			
@@ -198,10 +220,22 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 	}
 	
 	function disableRangeSlider() {
-		rangeMin.slider('disable');		
-		rangeMax.slider('disable');
-		$("#minDate").html("Min Date");
-		$("#maxDate").html("Max Date");	
+		rangeMinX.val(0);
+		if(allDates)
+			rangeMaxX.val(allDates.length);
+	
+		rangeMinX.slider('disable');		
+		rangeMaxX.slider('disable');
+		$("#minTitleX").html("Min Date");
+		$("#maxTitleX").html("Max Date");	
+		
+		rangeMinY.val(0);
+		rangeMaxY.val(parseFloat(getHighestYValue()));
+		
+		rangeMinY.slider('disable');		
+		rangeMaxY.slider('disable');
+		$("#minTitleY").html("Min Rate");
+		$("#maxTitleY").html("Max DRate");	
 	}
 	
 	
@@ -218,8 +252,8 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 			drawLine(xPos, yPos, xPos, yPos + 10, "#aaa");
 
 			if(allDisplaySeries && allDisplaySeries[0]) {
-				var maxLimit = rangeMax.val();
-				var minLimit = rangeMin.val();
+				var maxLimit = rangeMaxX.val();
+				var minLimit = rangeMinX.val();
 				var dateIndex = parseInt((parseInt(maxLimit) - parseInt(minLimit)) / NUM_X_TICKS) * i + parseInt(minLimit);
 			
 				context.font = "12px sans-serif";
@@ -270,9 +304,9 @@ function DrawRegion(allTimeSeries, allDates, width, height) {
 	}
 	
 	function getShortDate(dateIndex) {
-		if(dateIndex < parseInt(rangeMin.val())) {
+		if(dateIndex < parseInt(rangeMinX.val())) {
 			dateIndex = 0;
-		} else if(parseInt(dateIndex >= rangeMax.val())) {
+		} else if(parseInt(dateIndex >= rangeMaxX.val())) {
 			dateIndex = parseInt(allDisplaySeries[0].getNumPoints()) - 1;
 		} else {
 			var date = getDateFromString(allDisplaySeries[0].get(dateIndex).time);
